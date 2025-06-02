@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Реєстрація | Система Розумного Дому{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2><i class="fas fa-user-plus"></i> Реєстрація облікового запису</h2>
+
+        <form method="POST" action="{{ url_for('user.register') }}" class="auth-form">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label for="username"><i class="fas fa-user"></i> Логін</label>
+                {{ form.username(class="form-control", placeholder="Введіть унікальний логін") }}
+                {% for error in form.username.errors %}
+                <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> Пароль</label>
+                {{ form.password(class="form-control", placeholder="Створіть надійний пароль") }}
+                {% for error in form.password.errors %}
+                <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password"><i class="fas fa-lock"></i> Підтвердження паролю</label>
+                {{ form.confirm_password(class="form-control", placeholder="Повторіть пароль") }}
+                {% for error in form.confirm_password.errors %}
+                <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> Email</label>
+                {{ form.email(class="form-control", placeholder="Ваша електронна пошта") }}
+                {% for error in form.email.errors %}
+                <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    {{ form.accept_tos(class="form-check-input") }}
+                    <label class="form-check-label" for="accept_tos">
+                        Я погоджуюсь з <a href="#">умовами використання</a>
+                    </label>
+                    {% for error in form.accept_tos.errors %}
+                    <div class="error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-user-plus"></i> Зареєструватись
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <p>Вже маєте обліковий запис? <a href="{{ url_for('user.login') }}">Увійти</a></p>
+            <p>Адміністратор? <a href="{{ url_for('admin.login') }}">Вхід для адміністратора</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

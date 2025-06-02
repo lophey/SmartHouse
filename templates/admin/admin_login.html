@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Адміністратор | Система Розумного Дому{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card admin-card">
+        <div class="admin-badge">
+            <i class="fas fa-lock"></i>
+            <h2>Адміністративний доступ</h2>
+        </div>
+
+        <form method="POST" action="{{ url_for('admin.login') }}" class="auth-form">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label for="username"><i class="fas fa-user-shield"></i> Адміністративний логін</label>
+                {{ form.username(class="form-control", placeholder="Введіть адмін-логін") }}
+                {% for error in form.username.errors %}
+                <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="password"><i class="fas fa-key"></i> Адміністративний пароль</label>
+                {{ form.password(class="form-control", placeholder="Введіть адмін-пароль") }}
+                {% for error in form.password.errors %}
+                <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    {{ form.remember_me(class="form-check-input") }}
+                    <label class="form-check-label" for="remember_me">
+                        Запам'ятати мене
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-admin btn-block">
+                <i class="fas fa-unlock-alt"></i> Увійти як адміністратор
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <p>Звичайний користувач? <a href="{{ url_for('user.login') }}">Звичайний вхід</a></p>
+            <p>Ще не зареєстровані? <a href="{{ url_for('user.register') }}">Створити обліковий запис</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

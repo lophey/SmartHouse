@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Система Розумного Дому{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<header class="header">
+    <div class="logo">
+        <i class="fas fa-home"></i>
+        <h1>Розумний Дім</h1>
+    </div>
+
+    <nav class="navigation">
+        <ul>
+            <li><a href="{{ url_for('base.base') }}"><i class="fas fa-home"></i> Головна</a></li>
+
+            {% if current_user.is_authenticated %}
+                {% if current_user.is_admin() %}
+                    <li><a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-cogs"></i> Панель адміністратора</a></li>
+                    <li><a href="{{ url_for('admin.logout') }}"><i class="fas fa-sign-out-alt"></i> Вийти</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('user.dashboard') }}"><i class="fas fa-user"></i> Особистий кабінет</a></li>
+                    <li><a href="{{ url_for('user.logout') }}"><i class="fas fa-sign-out-alt"></i> Вийти</a></li>
+                {% endif %}
+            {% else %}
+                <li><a href="{{ url_for('user.login') }}"><i class="fas fa-sign-in-alt"></i> Вхід</a></li>
+                <li><a href="{{ url_for('user.register') }}"><i class="fas fa-user-plus"></i> Реєстрація</a></li>
+                <li><a href="{{ url_for('admin.login') }}"><i class="fas fa-lock"></i> Адмін-вхід</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
+
+<div class="content-container">
+    <!-- Flash-повідомлення -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Основний контент сторінки -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<footer class="footer">
+    <div class="footer-content">
+        <div class="contact-info">
+            <h3>Контакти</h3>
+            <p><i class="fas fa-envelope"></i> support@smart-home.com</p>
+            <p><i class="fas fa-phone"></i> +380 (44) 123-45-67</p>
+        </div>
+
+        <div class="quick-links">
+            <h3>Швидкі посилання</h3>
+            <ul>
+                <li><a href="{{ url_for('base.base') }}">Головна</a></li>
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_admin() %}
+                        <li><a href="{{ url_for('admin.dashboard') }}">Панель адміністратора</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('user.dashboard') }}">Особистий кабінет</a></li>
+                    {% endif %}
+                {% else %}
+                    <li><a href="{{ url_for('user.login') }}">Вхід</a></li>
+                    <li><a href="{{ url_for('user.register') }}">Реєстрація</a></li>
+                {% endif %}
+                <li><a href="#">Документація</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="copyright">
+        <p>&copy; 2025 Система Розумного Дому. Всі права захищені.</p>
+    </div>
+</footer>
+
+<script>
+    // Скрипт для автоматичного зникнення повідомлень через 5 секунд
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 600);
+            });
+        }, 5000);
+    });
+</script>
+</body>
+</html>

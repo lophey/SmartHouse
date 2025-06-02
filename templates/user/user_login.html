@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Вхід | Система Розумного Дому{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2><i class="fas fa-sign-in-alt"></i> Вхід до системи</h2>
+
+        <form method="POST" action="{{ url_for('user.login') }}" class="auth-form">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label for="username"><i class="fas fa-user"></i> Логін</label>
+                {{ form.username(class="form-control", placeholder="Введіть ваш логін") }}
+                {% for error in form.username.errors %}
+                <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> Пароль</label>
+                {{ form.password(class="form-control", placeholder="Введіть ваш пароль") }}
+                {% for error in form.password.errors %}
+                <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    {{ form.remember_me(class="form-check-input") }}
+                    <label class="form-check-label" for="remember_me">
+                        Запам'ятати мене
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-sign-in-alt"></i> Увійти
+            </button>
+
+            <div class="text-center mt-3">
+                <a href="#">Забули пароль?</a>
+            </div>
+        </form>
+
+        <div class="auth-links">
+            <p>Ще не зареєстровані? <a href="{{ url_for('user.register') }}">Створити обліковий запис</a></p>
+            <p>Адміністратор? <a href="{{ url_for('admin.login') }}">Вхід для адміністратора</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
