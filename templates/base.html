@@ -21,9 +21,11 @@
             {% if current_user.is_authenticated %}
                 {% if current_user.is_admin() %}
                     <li><a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-cogs"></i> Панель адміністратора</a></li>
+                    <li><a href="{{ url_for('admin.device_management') }}"><i class="fas fa-plug"></i> Пристрої</a></li>
                     <li><a href="{{ url_for('admin.logout') }}"><i class="fas fa-sign-out-alt"></i> Вийти</a></li>
                 {% else %}
-                    <li><a href="{{ url_for('user.dashboard') }}"><i class="fas fa-user"></i> Особистий кабінет</a></li>
+                    <li><a href="{{ url_for('user.dashboard') }}"><i class="fas fa-user"></i> Панель управління</a></li>
+                    <li><a href="{{ url_for('user.device_management') }}"><i class="fas fa-plug"></i> Пристрої</a></li>
                     <li><a href="{{ url_for('user.logout') }}"><i class="fas fa-sign-out-alt"></i> Вийти</a></li>
                 {% endif %}
             {% else %}
@@ -38,15 +40,15 @@
 <div class="content-container">
     <!-- Flash-повідомлення -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="flash-messages">
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
     {% endwith %}
 
     <!-- Основний контент сторінки -->
@@ -57,14 +59,10 @@
 
 <footer class="footer">
     <div class="footer-content">
-        <div class="contact-info">
-            <h3>Контакти</h3>
-            <p><i class="fas fa-envelope"></i> support@smart-home.com</p>
-            <p><i class="fas fa-phone"></i> +380 (44) 123-45-67</p>
-        </div>
 
         <div class="quick-links">
             <h3>Швидкі посилання</h3>
+
             <ul>
                 <li><a href="{{ url_for('base.base') }}">Головна</a></li>
                 {% if current_user.is_authenticated %}
@@ -77,13 +75,12 @@
                     <li><a href="{{ url_for('user.login') }}">Вхід</a></li>
                     <li><a href="{{ url_for('user.register') }}">Реєстрація</a></li>
                 {% endif %}
-                <li><a href="#">Документація</a></li>
             </ul>
         </div>
     </div>
 
     <div class="copyright">
-        <p>&copy; 2025 Система Розумного Дому. Всі права захищені.</p>
+        <p>&copy; 2025 Система Розумного Дому. Розроблено Тимошенко Олегом.</p>
     </div>
 </footer>
 

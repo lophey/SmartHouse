@@ -3,8 +3,9 @@ from app import db
 class Device(db.Model):
     __tablename__ = 'devices'
     device_id = db.Column(db.Integer, primary_key=True)
-    room_id = db.Column(db.Integer, db.ForeignKey('rooms.room_id'), nullable=False)
+    controllers_id = db.Column(db.Integer, db.ForeignKey('controllers.controllers_id'), nullable=False)
     name = db.Column(db.String(50), nullable=False)
+    name_arduino = db.Column(db.String(50))
     type = db.Column(db.String(20), nullable=False)
     location = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.now())

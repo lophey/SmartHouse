@@ -2,3 +2,110 @@
 
 {% block title %}Адміністратор | Дашборд{% endblock %}
 
+{% block content %}
+<div class="dashboard-header">
+    <h2>Режим охорони:</h2>
+    <select id="securityMode" onchange="setSecurityMode(this.value)">
+        <option value="OFF">Вимкнено</option>
+        <option value="HOME">Вдома</option>
+        <option value="AWAY">Повна</option>
+    </select>
+    <div class="controllers-btn">
+        <button class="manage-controllers-btn" onclick="window.location.href='{{ url_for('admin.manage_controllers') }}'">
+            Управління контролерами
+        </button>
+    </div>
+</div>
+
+
+<div class="dashboard">
+
+    <!-- Контейнер для карток кімнат -->
+    <div class="room-grid" id="roomGrid">
+        {% for room in rooms_data %}
+        <div class="room-card">
+            <h3>{{ room.location }}</h3>
+
+            <div class="sensors-grid">
+                {% for sensor in room.sensors %}
+                <div class="sensor-card">
+                    <div class="sensor-header">
+                        <span class="sensor-name">{{ sensor.name }}:</span>
+                        <span class="sensor-value">{{ sensor.value }}{{ sensor.unit }}</span>
+                    </div>
+                    <div class="sensor-footer">
+                        <span class="sensor-timestamp">{{ sensor.timestamp }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        function setSecurityMode(mode) {
+            fetch("{{ url_for('admin.set_security_mode') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ mode: mode })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        alert('Режим охорони змінено: ' + mode);
+                    } else {
+                        alert('Помилка: ' + data.error);
+                    }
+                });
+        }
+
+
+
+        function fetchRoomsData() {
+            fetch('{{ url_for("admin.dashboard_data") }}')
+                .then(response => response.json())
+                .then(data => {
+                    const grid = document.getElementById("roomGrid");
+                    grid.innerHTML = "";
+
+                    data.forEach(room => {
+                        const card = document.createElement("div");
+                        card.className = "room-card";
+
+                        const title = document.createElement("h3");
+                        title.textContent = room.location;
+                        card.appendChild(title);
+
+                        const sensorGrid = document.createElement("div");
+                        sensorGrid.className = "sensors-grid";
+
+                        room.sensors.forEach(sensor => {
+                            const sensorCard = document.createElement("div");
+                            sensorCard.className = "sensor-card";
+
+                            sensorCard.innerHTML = `
+                        <div class="sensor-header">
+                            <span class="sensor-name">${sensor.name}:</span>
+                            <span class="sensor-value">${sensor.value}${sensor.unit}</span>
+                        </div>
+                        <div class="sensor-footer">
+                            <span class="sensor-timestamp">${sensor.timestamp}</span>
+                        </div>
+                    `;
+                            sensorGrid.appendChild(sensorCard);
+                        });
+
+                        card.appendChild(sensorGrid);
+                        grid.appendChild(card);
+                    });
+                });
+        }
+
+        fetchRoomsData(); // initial load
+        setInterval(fetchRoomsData, 5000); // refresh every 10 sec
+    </script>
+</div>
+
+{% endblock %}

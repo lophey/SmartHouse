@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Адміністратор | Управління контролерами{% endblock %}
+
+{% block content %}
+<div class="room-grid">
+    {% for controller in controllers %}
+    <div class="room-card" id="room-{{ controller.controllers_id }}">
+        <div class="room-card-header">
+            <h3>Контролер: {{ controller.device_id }}</h3>
+            <button class="settings-btn" onclick="document.getElementById('settingsModal-{{ controller.controllers_id }}').style.display='block'">⚙️</button>
+        </div>
+        <div class="sensor-data">
+        </div>
+    </div>
+    <!-- Settings Modal for Controller -->
+    <div id="settingsModal-{{ controller.controllers_id }}" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('settingsModal-{{ controller.controllers_id }}').style.display='none'">×</span>
+            <h2>Налаштування контролеру: {{ controller.device_id }}</h2>
+
+            <!-- Add Device Form -->
+            <h3>Додати пристрій</h3>
+            <form action="{{ url_for('admin.add_device') }}" method="POST">
+                <input type="hidden" name="controller_id" value="{{ controller.controllers_id }}">
+                <div class="form-group-admin">
+                    <label for="device_name-{{ controller.controllers_id }}">Назва пристрою:</label>
+                    <input type="text" id="device_name-{{ controller.controllers_id }}" name="name" required>
+                </div>
+                <div class="form-group-admin">
+                    <label for="device_arduino_name-{{ controller.controllers_id }}">Назва пристрою як в Arduino:</label>
+                    <input type="text" id="device_arduino_name-{{ controller.controllers_id }}" name="name_arduino" required>
+                </div>
+                <div class="form-group-admin">
+                    <label for="device_type-{{ controller.controllers_id }}">Тип пристрою:</label>
+                    <select id="device_type-{{ controller.controllers_id }}" name="type" required>
+                        <option value="sensor">Сенсор</option>
+                        <option value="relay">Реле</option>
+                    </select>
+                </div>
+                <div class="form-group-admin">
+                    <label for="device_location-{{ controller.controllers_id }}">Локація пристрою:</label>
+                    <input type="text" id="device_location-{{ controller.controllers_id }}" name="device_location" required>
+                </div>
+                <button type="submit" class="submit-btn">Додати пристрій</button>
+            </form>
+
+            <!-- Delete Device Form -->
+            <h3>Видалити пристрій</h3>
+            {% if controller.devices %}
+            <form action="{{ url_for('admin.delete_device') }}" method="POST">
+                <input type="hidden" name="controller_id" value="{{ controller.controllers_id }}">
+                <div class="form-group-admin">
+                    <label for="device_id-{{ controller.controllers_id }}">Виберіть пристрій:</label>
+                    <select id="device_id-{{ controller.controllers_id }}" name="device_id" required>
+                        {% for device in controller.devices %}
+                        <option value="{{ device.device_id }}">{{ device.name }} ({{ device.type }}) ({{ device.name_arduino }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn danger">Видалити пристрій</button>
+            </form>
+            {% else %}
+            <p>Немає пристроїв для видалення.</p>
+            {% endif %}
+
+            <!-- Delete Controller Form -->
+            <h3>Видалити контролер</h3>
+            <form action="{{ url_for('admin.delete_controller', controller_id=controller.controllers_id) }}" method="POST">
+                <button type="submit" class="submit-btn danger" onclick="return confirm('Ви впевнені, що хочете видалити контролер?')">Видалити контролер</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+    <button class="add-room-btn" onclick="document.getElementById('addControllerModal').style.display='block'">
+        <span class="plus-icon">+</span>
+        Додати контролер
+    </button>
+
+    <!-- Modal for adding a new room -->
+    <div id="addControllerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('addControllerModal').style.display='none'">&times;</span>
+            <h2>Додати новий контролер</h2>
+            <form action="{{ url_for('admin.add_controller') }}" method="POST">
+                <div class="form-group-admin">
+                    <label for="name">Назва контролеру:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group-admin">
+                    <label for="device_id">ID пристрою як в Arduino:</label>
+                    <input type="text" id="device_id" name="device_id" required>
+                </div>
+                <div class="form-group-admin">
+                    <label for="has_buzzer">Наявність зумера:</label>
+                    <select id="has_buzzer" name="has_buzzer" required>
+                        <option value="True">Так</option>
+                        <option value="False">Ні</option>
+                    </select>
+                </div>
+                <div class="form-group-admin">
+                    <label for="description">Опис:</label>
+                    <textarea id="description" name="description" rows="4"></textarea>
+                </div>
+                <div class="form-group-admin">
+                    <label for="port">Порт контролера:</label>
+                    <input type="number" id="port" name="port" required>
+                </div>
+                <button type="submit" class="submit-btn">Додати</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

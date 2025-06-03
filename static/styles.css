@@ -61,7 +61,7 @@ body {
 
 /* Основний контент */
 .content-container {
-    max-width: 1200px;
+    max-width: 1550px;
     margin: 2rem auto;
     padding: 0 20px;
 }
@@ -321,8 +321,8 @@ body {
 
 .room-card {
     border: 1px solid #ccc;
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 10px;
+    padding: 20px;
     width: 300px;
     background-color: #f9f9f9;
 }
@@ -370,4 +370,248 @@ body {
     padding: 5px;
     border: 1px solid #ddd;
     border-radius: 4px;
+}
+
+.global-controls {
+    text-align: center;
+    margin: 20px 0;
+}
+.global-controls select {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 4px;
+}
+.room-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+/*.room-card {*/
+/*    background: #fff;*/
+/*    border-radius: 10px;*/
+/*    box-shadow: 0 4px 8px rgba(0,0,0,0.1);*/
+/*    padding: 20px;*/
+/*    width: 300px;*/
+/*}*/
+
+.room-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.settings-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #0080ff;
+    transition: color 0.3s;
+}
+
+.settings-btn:hover {
+    color: #0066cc;
+}
+
+.add-room-btn {
+    gap: 10px;
+    width: 300px;
+    background-color: rgba(0, 128, 255, 0.2);
+    border: 2px dashed #0080ff;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #0080ff;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.add-room-btn:hover {
+    background-color: rgba(0, 128, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.plus-icon {
+    font-size: 24px;
+}
+.controls {
+    margin-top: 10px;
+}
+.controls button {
+    padding: 8px 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px;
+}
+.controls button:hover {
+    background-color: #45a049;
+}
+.controls select, .controls input {
+    padding: 6px;
+    margin: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+.temperature-controls input {
+    width: 80px;
+}
+.gas-value.danger, .alarm-value.danger {
+    color: red;
+    font-weight: bold;
+}
+.alarm-value {
+    display: none;
+}
+@media (max-width: 768px) {
+    .room-card {
+        width: 100%;
+        max-width: 400px;
+    }
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 5px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+}
+
+.form-group-admin {
+    margin-bottom: 15px;
+}
+
+.form-group-admin label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group-admin input,
+.form-group-admin textarea,
+.form-group-admin select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.submit-btn {
+    background-color: #0080ff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.submit-btn:hover {
+    background-color: #0066cc;
+}
+
+.submit-btn.danger {
+    background-color: #ff3333;
+}
+
+.submit-btn.danger:hover {
+    background-color: #cc0000;
+}
+
+.dashboard-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 10px 30px;
+}
+
+.controllers-btn {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding: 10px 30px;
+}
+
+.manage-controllers-btn {
+    background-color: #3c536c;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+}
+
+.manage-controllers-btn:hover {
+    background-color: #354454;
+}
+
+.sensors-grid {
+    display: grid;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.sensor-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 5px;
+    /*border: 2px solid #e5e5e5;*/
+    border-left: 4px solid #4e73df;
+}
+
+.sensor-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.sensor-name {
+    font-size: 0.9rem;
+    color: #5a5c69;
+}
+
+.sensor-value {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.sensor-footer {
+    margin-top: 3px;
+    font-size: 0.75rem;
+    color: #858796;
 }

@@ -42,17 +42,17 @@
                 {% endfor %}
             </div>
 
-            <div class="form-group">
-                <div class="form-check">
-                    {{ form.accept_tos(class="form-check-input") }}
-                    <label class="form-check-label" for="accept_tos">
-                        Я погоджуюсь з <a href="#">умовами використання</a>
-                    </label>
-                    {% for error in form.accept_tos.errors %}
-                    <div class="error">{{ error }}</div>
-                    {% endfor %}
-                </div>
-            </div>
+<!--            <div class="form-group">-->
+<!--                <div class="form-check">-->
+<!--                    {{ form.accept_tos(class="form-check-input") }}-->
+<!--                    <label class="form-check-label" for="accept_tos">-->
+<!--                        Я погоджуюсь з <a href="#">умовами використання</a>-->
+<!--                    </label>-->
+<!--                    {% for error in form.accept_tos.errors %}-->
+<!--                    <div class="error">{{ error }}</div>-->
+<!--                    {% endfor %}-->
+<!--                </div>-->
+<!--            </div>-->
 
             <button type="submit" class="btn btn-primary btn-block">
                 <i class="fas fa-user-plus"></i> Зареєструватись

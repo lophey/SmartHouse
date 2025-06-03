@@ -3,229 +3,105 @@
 {% block title %}Користувач | Дашборд{% endblock %}
 
 {% block content %}
-<div id="dashboard-container">
-    <!-- Глобальное управление сигнализацией -->
-    <div class="global-controls">
-        <h2>Керування сигналізацією</h2>
-        <select id="global-alarm-mode" onchange="setGlobalMode(this.value)">
-            <option value="OFF" {% if security_mode == 'OFF' %}selected{% endif %}>Вимкнено</option>
-            <option value="HOME" {% if security_mode == 'HOME' %}selected{% endif %}>Дома</option>
-            <option value="AWAY" {% if security_mode == 'AWAY' %}selected{% endif %}>Відсутній</option>
-        </select>
-    </div>
-    <div class="room-grid">
-        {% for room in rooms %}
-        <div class="room-card" id="room-{{ room.room_id }}">
-            <h3>{{ room.name }}</h3>
-            <div class="sensor-data">
-                <p>Температура: <span class="temp-value">{{ room.last_data.temp|default('N/A') }}</span>°C</p>
-                <p>Вологість: <span class="hum-value">{{ room.last_data.hum|default('N/A') }}</span>%</p>
-                <p>Рівень світла: <span class="ldr-value">{{ room.last_data.ldr|default('N/A') }}</span></p>
-                {% if room.last_data.gas is not none %}
-                <p>Рівень газу: <span class="gas-value">{{ 'Небезпека' if room.last_data.gas >= 400 else 'Нормальний' }}</span></p>
-                {% endif %}
-                {% if room.last_data.fire is not none %}
-                <p>Вогонь: <span class="fire-value">{{ 'Пожежа' if room.last_data.fire >= 256 else 'Відсутній' }}</span></p>
-                {% endif %}
-                <p>Рух: <span class="motion-value">{{ 'Присутній' if room.last_data.motion == 1 else 'Відсутній' }}</span></p>
-                {% if room.last_data.alarm_type %}
-                <p class="alarm-value danger">Тривога: {{ room.last_data.alarm_type }}</p>
-                {% endif %}
-            </div>
-            {% if room.name in ['KITCHEN', 'ROOM1', 'Room2', 'Room3', 'Bathroom', 'Hallway'] %}
-            <div class="controls">
-                <h4>Керування</h4>
-                <!-- Управление светом -->
-                <button onclick="sendCommand('{{ room.base_room_id }}', '{{ room.device_id }}:LIGHT:ON')">Увімкнути світло</button>
-                <button onclick="sendCommand('{{ room.base_room_id }}', '{{ room.device_id }}:LIGHT:OFF')">Вимкнути світло</button>
-                <!-- Управление режимом сигнализации -->
-                <select id="alarm-mode-{{ room.room_id }}" onchange="sendCommand('{{ room.base_room_id }}', '{{ room.device_id }}:SET_MODE:' + this.value)">
-                    <option value="OFF" {% if security_mode == 'OFF' %}selected{% endif %}>Вимкнено</option>
-                    <option value="HOME" {% if security_mode == 'HOME' %}selected{% endif %}>Дома</option>
-                    <option value="AWAY" {% if security_mode == 'AWAY' %}selected{% endif %}>Відсутній</option>
-                </select>
-                {% if room.name in ['ROOM1', 'Hallway'] %}
-                <!-- Управление температурой -->
-                <div class="temperature-controls">
-                    <p>Цільова температура: <span class="target-temp">{{ room.target_temp }}</span>°C</p>
-                    <input type="number" id="target-temp-{{ room.room_id }}" placeholder="Цільова температура" step="0.1">
-                    <button onclick="sendCommand('{{ room.base_room_id }}', '{{ room.device_id }}:TARGET_TEMP:' + document.getElementById('target-temp-{{ room.room_id }}').value)">Встановити</button>
-                    <p>Температура спрацювання: <span class="trigger-temp">{{ room.trigger_temp }}</span>°C</p>
-                    <input type="number" id="trigger-temp-{{ room.room_id }}" placeholder="Температура спрацювання" step="0.1">
-                    <button onclick="sendCommand('{{ room.base_room_id }}', '{{ room.device_id }}:TRIGGER_TEMP:' + document.getElementById('trigger-temp-{{ room.room_id }}').value)">Встановити</button>
-                </div>
-                {% endif %}
-            </div>
-            {% endif %}
-        </div>
-        {% endfor %}
+<div class="dashboard-header">
+    <h2>Режим охорони:</h2>
+    <select id="securityMode" onchange="setSecurityMode(this.value)">
+        <option value="OFF">Вимкнено</option>
+        <option value="HOME">Вдома</option>
+        <option value="AWAY">Повна</option>
+    </select>
+    <div class="controllers-btn">
+        <button class="manage-controllers-btn" onclick="window.location.href='{{ url_for('admin.manage_controllers') }}'">
+            Управління контролерами
+        </button>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function() {
-        // Функция для отправки команд
-        window.sendCommand = function(roomId, command) {
-            $.ajax({
-                url: '/user/api/send_command',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ room_id: roomId, command: command }),
-                success: function(response) {
-                    console.log('Команда відправлена:', response);
-                    updateDashboard();
-                },
-                error: function(xhr, status, error) {
-                    console.error('Помилка при відправці команди:', error);
-                    alert('Помилка при відправці команди: ' + xhr.responseJSON?.error || error);
-                }
-            });
-        };
+<div class="dashboard">
+    <!-- Контейнер для карток кімнат -->
+    <div class="room-grid" id="roomGrid">
+        {% for room in rooms_data %}
+        <div class="room-card">
+            <h3>{{ room.location }}</h3>
 
-        // Функция для установки глобального режима сигнализации
-        window.setGlobalMode = function(mode) {
-            $.ajax({
-                url: '/user/api/set_global_mode',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ mode: mode }),
-                success: function(response) {
-                    console.log('Глобальний режим встановлено:', response);
-                    updateDashboard();
-                    if (response.errors) {
-                        alert('Деякі команди не вдалося відправити: ' + response.errors.join(', '));
+            <div class="sensors-grid">
+                {% for sensor in room.sensors %}
+                <div class="sensor-card">
+                    <div class="sensor-header">
+                        <span class="sensor-name">{{ sensor.name }}:</span>
+                        <span class="sensor-value">{{ sensor.value }}{{ sensor.unit }}</span>
+                    </div>
+                    <div class="sensor-footer">
+                        <span class="sensor-timestamp">{{ sensor.timestamp }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        function setSecurityMode(mode) {
+            fetch("{{ url_for('user.set_security_mode') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ mode: mode })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        alert('Режим охорони змінено: ' + mode);
+                    } else {
+                        alert('Помилка: ' + data.error);
                     }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Помилка при встановленні глобального режиму:', error);
-                    alert('Помилка при встановленні глобального режиму: ' + xhr.responseJSON?.error || error);
-                }
-            });
-        };
+                });
+        }
 
-        // Функция для обновления данных
-        function updateDashboard() {
-            $.ajax({
-                url: '/user/api/latest_data',
-                type: 'GET',
-                success: function(response) {
-                    response.rooms.forEach(function(room) {
-                        const roomElement = $(`#room-${room.room_id}`);
+        function fetchRoomsData() {
+            fetch('{{ url_for("user.dashboard_data") }}')
+                .then(response => response.json())
+                .then(data => {
+                    const grid = document.getElementById("roomGrid");
+                    grid.innerHTML = "";
 
-                        // Обновляем значения датчиков
-                        roomElement.find('.temp-value').text(room.last_data.temp || 'N/A');
-                        roomElement.find('.hum-value').text(room.last_data.hum || 'N/A');
-                        roomElement.find('.ldr-value').text(room.last_data.ldr || 'N/A');
+                    data.forEach(room => {
+                        const card = document.createElement("div");
+                        card.className = "room-card";
 
-                        // Обновляем газ
-                        const gasValue = room.last_data.gas || 0;
-                        const gasElement = roomElement.find('.gas-value');
-                        gasElement.text(gasValue >= 400 ? 'Небезпека' : 'Нормальний');
-                        gasElement.toggleClass('danger', gasValue >= 400);
+                        const title = document.createElement("h3");
+                        title.textContent = room.location;
+                        card.appendChild(title);
 
-                        // Обновляем пожар
-                        if (room.last_data.fire !== undefined) {
-                            const fireValue = room.last_data.fire || 0;
-                            roomElement.find('.fire-value').text(fireValue >= 256 ? 'Пожежа' : 'Відсутній');
-                        }
+                        const sensorGrid = document.createElement("div");
+                        sensorGrid.className = "sensors-grid";
 
-                        // Обновляем движение
-                        roomElement.find('.motion-value').text(room.last_data.motion == 1 ? 'Присутній' : 'Відсутній');
+                        room.sensors.forEach(sensor => {
+                            const sensorCard = document.createElement("div");
+                            sensorCard.className = "sensor-card";
 
-                        // Обновляем тривогу
-                        const alarmElement = roomElement.find('.alarm-value');
-                        if (room.last_data.alarm_type) {
-                            alarmElement.text(`Тривога: ${room.last_data.alarm_type}`).show();
-                        } else {
-                            alarmElement.hide();
-                        }
+                            sensorCard.innerHTML = `
+                        <div class="sensor-header">
+                            <span class="sensor-name">${sensor.name}:</span>
+                            <span class="sensor-value">${sensor.value}${sensor.unit}</span>
+                        </div>
+                        <div class="sensor-footer">
+                            <span class="sensor-timestamp">${sensor.timestamp}</span>
+                        </div>
+                    `;
+                            sensorGrid.appendChild(sensorCard);
+                        });
 
-                        // Обновляем температурные настройки
-                        if (room.name && ['Kitchen', 'Room1', 'Room2', 'Room3', 'Bathroom', 'Hallway'].includes(room.name)) {
-                            roomElement.find('.target-temp').text(room.target_temp);
-                            roomElement.find('.trigger-temp').text(room.trigger_temp);
-                        }
-
-                        // Обновляем индивидуальный селектор режима
-                        roomElement.find(`#alarm-mode-${room.room_id}`).val(response.security_mode || 'OFF');
+                        card.appendChild(sensorGrid);
+                        grid.appendChild(card);
                     });
-
-                    // Обновляем глобальный селектор
-                    $('#global-alarm-mode').val(response.security_mode || 'OFF');
-                },
-                error: function(xhr, status, error) {
-                    console.error('Помилка при оновленні даних:', error);
-                }
-            });
+                });
         }
 
-        // Обновляем данные сразу и каждые 5 секунд
-        updateDashboard();
-        setInterval(updateDashboard, 5000);
-    });
-</script>
-
-<style>
-    .global-controls {
-        text-align: center;
-        margin: 20px 0;
-    }
-    .global-controls select {
-        padding: 8px;
-        font-size: 16px;
-        border-radius: 4px;
-    }
-    .room-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        justify-content: center;
-    }
-    .room-card {
-        border: 1px solid #ccc;
-        padding: 15px;
-        border-radius: 5px;
-        width: 300px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .controls {
-        margin-top: 10px;
-    }
-    .controls button {
-        padding: 8px 12px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        margin: 5px;
-    }
-    .controls button:hover {
-        background-color: #45a049;
-    }
-    .controls select, .controls input {
-        padding: 6px;
-        margin: 5px;
-        border-radius: 4px;
-        border: 1px solid #ccc;
-    }
-    .temperature-controls input {
-        width: 80px;
-    }
-    .gas-value.danger, .alarm-value.danger {
-        color: red;
-        font-weight: bold;
-    }
-    .alarm-value {
-        display: none;
-    }
-    @media (max-width: 768px) {
-        .room-card {
-            width: 100%;
-            max-width: 400px;
-        }
-    }
-</style>
+        fetchRoomsData(); // initial load
+        setInterval(fetchRoomsData, 5000); // refresh every 10 sec
+    </script>
+</div>
 {% endblock %}
 
