@@ -68,10 +68,24 @@ def set_security_mode():
 @user_bp.route('/dashboard')
 @login_required
 def dashboard():
+    # Получаем текущий режим охраны из sensor_data
+    latest_alarm = SensorData.query.filter_by(type='alarmMode').order_by(SensorData.timestamp.desc()).first()
+
+    # Преобразуем числовое значение в текстовое
+    security_mode = 'OFF'
+    if latest_alarm:
+        if latest_alarm.value == 0:
+            security_mode = 'OFF'
+        elif latest_alarm.value == 1:
+            security_mode = 'HOME'
+        elif latest_alarm.value == 2:
+            security_mode = 'AWAY'
+
     rooms_data=get_sensor_data(db)
 
     return render_template(
-        'user/user_main.html', rooms_data=rooms_data)
+        'user/user_main.html', rooms_data=rooms_data,
+        current_security_mode=security_mode)
 
 @user_bp.route('/dashboard/data')
 @login_required
@@ -79,12 +93,6 @@ def dashboard_data():
 
     rooms_data = get_sensor_data(db)
     return jsonify(rooms_data)
-
-@user_bp.route('/devices')
-@login_required
-def device_management():
-
-    return render_template('user/user_device_management.html')
 
 @user_bp.route('/logout')
 @login_required

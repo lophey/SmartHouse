@@ -4,22 +4,40 @@
 
 {% block content %}
 <div class="dashboard-header">
-    <h2>Режим охорони:</h2>
-    <select id="securityMode" onchange="setSecurityMode(this.value)">
-        <option value="OFF">Вимкнено</option>
-        <option value="HOME">Вдома</option>
-        <option value="AWAY">Повна</option>
-    </select>
-    <div class="controllers-btn">
-        <button class="manage-controllers-btn" onclick="window.location.href='{{ url_for('admin.manage_controllers') }}'">
-            Управління контролерами
-        </button>
+    <div class="security-container">
+        <div class="security-display">
+            <h3>Режим охорони:</h3>
+            <div class="security-status">
+                <span class="security-badge" id="securityBadge">
+                    {% if current_security_mode == 'OFF' %}
+                        <span class="badge off">Вимкнено</span>
+                    {% elif current_security_mode == 'HOME' %}
+                        <span class="badge home">Вдома</span>
+                    {% elif current_security_mode == 'AWAY' %}
+                        <span class="badge away">Повна</span>
+                    {% else %}
+                        <span class="badge">Невідомо</span>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="security-controls">
+            <select id="securityMode" class="security-select">
+                <option value="OFF" {{ 'selected' if current_security_mode == 'OFF' }}>Вимкнено</option>
+                <option value="HOME" {{ 'selected' if current_security_mode == 'HOME' }}>Вдома</option>
+                <option value="AWAY" {{ 'selected' if current_security_mode == 'AWAY' }}>Повна</option>
+            </select>
+            <button class="btn btn-apply" onclick="setSecurityMode()">
+                <i class="fas fa-check"></i> Застосувати
+            </button>
+        </div>
     </div>
 </div>
 
-<div class="dashboard">
+<div class="container">
     <!-- Контейнер для карток кімнат -->
-    <div class="room-grid" id="roomGrid">
+    <div class="rooms-container" id="roomGrid">
         {% for room in rooms_data %}
         <div class="room-card">
             <h3>{{ room.location }}</h3>
@@ -41,7 +59,9 @@
         {% endfor %}
     </div>
     <script>
-        function setSecurityMode(mode) {
+        function setSecurityMode() {
+            const mode = document.getElementById('securityMode').value;
+
             fetch("{{ url_for('user.set_security_mode') }}", {
                 method: 'POST',
                 headers: {
@@ -51,8 +71,32 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    if(data.status === 'success') {
-                        alert('Режим охорони змінено: ' + mode);
+                    if (data.status === 'success') {
+                        // Обновляем отображение режима
+                        const badge = document.getElementById('securityBadge');
+                        let badgeClass = '';
+                        let badgeText = '';
+
+                        switch(mode) {
+                            case 'OFF':
+                                badgeClass = 'badge off';
+                                badgeText = 'Вимкнено';
+                                break;
+                            case 'HOME':
+                                badgeClass = 'badge home';
+                                badgeText = 'Вдома';
+                                break;
+                            case 'AWAY':
+                                badgeClass = 'badge away';
+                                badgeText = 'Повна';
+                                break;
+                            default:
+                                badgeClass = 'badge';
+                                badgeText = 'Невідомо';
+                        }
+
+                        badge.innerHTML = `<span class="${badgeClass}">${badgeText}</span>`;
+                        alert('Режим охорони змінено: ' + badgeText);
                     } else {
                         alert('Помилка: ' + data.error);
                     }
@@ -103,5 +147,121 @@
         setInterval(fetchRoomsData, 5000); // refresh every 10 sec
     </script>
 </div>
+
+<style>
+.dashboard-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+gap: 20px;
+padding: 20px;
+background-color: #f8f9fa;
+border-radius: 10px;
+box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+margin-bottom: 30px;
+}
+
+.security-container {
+display: flex;
+flex-direction: column;
+gap: 15px;
+min-width: 300px;
+}
+
+.security-display {
+display: flex;
+align-items: center;
+gap: 15px;
+}
+
+.security-status {
+display: flex;
+align-items: center;
+}
+
+.badge {
+padding: 8px 15px;
+border-radius: 20px;
+font-weight: bold;
+font-size: 16px;
+box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.badge.off {
+background-color: #6c757d;
+color: white;
+}
+
+.badge.home {
+background-color: #0dcaf0;
+color: white;
+}
+
+.badge.away {
+background-color: #dc3545;
+color: white;
+}
+
+.security-controls {
+display: flex;
+gap: 10px;
+}
+
+.security-select {
+flex: 1;
+padding: 8px 15px;
+border-radius: 5px;
+border: 1px solid #ced4da;
+font-size: 16px;
+}
+
+.btn-apply {
+background-color: #0d6efd;
+color: white;
+border: none;
+border-radius: 5px;
+padding: 8px 15px;
+cursor: pointer;
+transition: background-color 0.2s;
+}
+
+.btn-apply:hover {
+background-color: #0b5ed7;
+}
+
+.btn-manage {
+background-color: #6f42c1;
+color: white;
+border: none;
+border-radius: 5px;
+padding: 8px 15px;
+cursor: pointer;
+transition: background-color 0.2s;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.btn-manage:hover {
+background-color: #5a32a3;
+}
+
+@media (max-width: 768px) {
+.dashboard-header {
+flex-direction: column;
+align-items: flex-start;
+}
+
+.controllers-btn {
+width: 100%;
+}
+
+.btn-manage {
+width: 100%;
+justify-content: center;
+}
+}
+</style>
 {% endblock %}
 

@@ -16,16 +16,16 @@
 
     <nav class="navigation">
         <ul>
-            <li><a href="{{ url_for('base.base') }}"><i class="fas fa-home"></i> Головна</a></li>
+<!--            <li><a href="{{ url_for('base.base') }}"><i class="fas fa-home"></i> Головна</a></li>-->
 
             {% if current_user.is_authenticated %}
                 {% if current_user.is_admin() %}
                     <li><a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-cogs"></i> Панель адміністратора</a></li>
-                    <li><a href="{{ url_for('admin.device_management') }}"><i class="fas fa-plug"></i> Пристрої</a></li>
+                    <li><a href="{{ url_for('admin_devices.admin_devices_list') }}"><i class="fas fa-plug"></i> Пристрої</a></li>
                     <li><a href="{{ url_for('admin.logout') }}"><i class="fas fa-sign-out-alt"></i> Вийти</a></li>
                 {% else %}
                     <li><a href="{{ url_for('user.dashboard') }}"><i class="fas fa-user"></i> Панель управління</a></li>
-                    <li><a href="{{ url_for('user.device_management') }}"><i class="fas fa-plug"></i> Пристрої</a></li>
+                    <li><a href="{{ url_for('user_devices.user_devices_list') }}"><i class="fas fa-plug"></i> Пристрої</a></li>
                     <li><a href="{{ url_for('user.logout') }}"><i class="fas fa-sign-out-alt"></i> Вийти</a></li>
                 {% endif %}
             {% else %}
@@ -64,12 +64,14 @@
             <h3>Швидкі посилання</h3>
 
             <ul>
-                <li><a href="{{ url_for('base.base') }}">Головна</a></li>
+<!--                <li><a href="{{ url_for('base.base') }}">Головна</a></li>-->
                 {% if current_user.is_authenticated %}
                     {% if current_user.is_admin() %}
                         <li><a href="{{ url_for('admin.dashboard') }}">Панель адміністратора</a></li>
+                        <li><a href="{{ url_for('admin_devices.admin_devices_list') }}">Пристрої</a></li>
                     {% else %}
-                        <li><a href="{{ url_for('user.dashboard') }}">Особистий кабінет</a></li>
+                        <li><a href="{{ url_for('user.dashboard') }}">Панель управління</a></li>
+                        <li><a href="{{ url_for('user_devices.user_devices_list') }}">Пристрої</a></li>
                     {% endif %}
                 {% else %}
                     <li><a href="{{ url_for('user.login') }}">Вхід</a></li>

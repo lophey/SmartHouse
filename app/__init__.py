@@ -28,12 +28,18 @@ def create_app():
         # Реєстрація блюпрінтів
         from app.controllers.admin_routes import admin_bp
         from app.controllers.user_routes import user_bp
-        from app.controllers.device_controller import device_bp
         from app.controllers.base import base_bp
+
+        from app.controllers.device_controller import admin_device_bp, user_device_bp
+
+        # Регистрируем Blueprint для админской части
+        app.register_blueprint(admin_device_bp)
+
+        # Регистрируем Blueprint для пользовательской части
+        app.register_blueprint(user_device_bp)
 
         app.register_blueprint(admin_bp)
         app.register_blueprint(user_bp)
-        app.register_blueprint(device_bp)
         app.register_blueprint(base_bp)
 
         # Створення таблиць БД

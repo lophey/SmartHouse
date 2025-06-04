@@ -3,5 +3,132 @@
 {% block title %}Користувач | Пристрої{% endblock %}
 
 {% block content %}
+<div class="container">
+    <h1>Управління пристроями</h1>
+
+    <div class="rooms-container">
+        {% for room in rooms %}
+        <div class="room-card">
+            <div class="room-card-header">
+                <h3>{{ room.name }}</h3>
+            </div>
+            <!-- Осветительные приборы -->
+            <div class="lighting-controls">
+                <h4>Освітлення</h4>
+                {% for device in room.lighting_devices %}
+                <div class="device-control">
+                    <label for="device_{{ device.device_id }}">{{ device.name }}</label>
+                    <label class="switch">
+                        <input type="checkbox" id="device_{{ device.device_id }}"
+                               onchange="toggleDevice({{ device.device_id }}, this.checked)"
+                               {{ 'checked' if device.state else '' }}>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Кондиционер -->
+            {% if room.ac_device %}
+            <div class="ac-control">
+                <h4>Кондиціонер</h4>
+                <div class="temp-control">
+                    <label>Цільова температура: <span class="current-temp"><br>{{ room.target_temp }}°C</span></label>
+                    <div class="temp-input-group">
+                        <input type="number" step="1" id="target_temp_{{ room.controller_id }}"
+                               class="form-control" value="{{ room.target_temp }}">
+                        <button class="btn"
+                                onclick="setTemperature({{ room.controller_id }}, 'target',
+                                        document.getElementById('target_temp_{{ room.controller_id }}').value)">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="temp-control">
+                    <label>Температура спрацювання: <span class="current-temp"><br>{{ room.trigger_temp }}°C</span></label>
+                    <div class="temp-input-group">
+                        <input type="number" step="1" id="trigger_temp_{{ room.controller_id }}"
+                               class="form-control" value="{{ room.trigger_temp }}">
+                        <button class="btn"
+                                onclick="setTemperature({{ room.controller_id }}, 'trigger',
+                                        document.getElementById('trigger_temp_{{ room.controller_id }}').value)">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function toggleDevice(device_id, state) {
+        const command = state ? 'ON' : 'OFF';
+        controlDevice(device_id, command);
+    }
+
+    function controlDevice(device_id, state) {
+        fetch("{{ url_for('user_devices.user_control_device') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ device_id: device_id, state: state })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status !== 'success') {
+                    alert('Помилка: ' + data.error);
+                    // Возвращаем переключатель в предыдущее состояние
+                    const checkbox = document.getElementById('device_' + device_id);
+                    checkbox.checked = !checkbox.checked;
+                }
+            });
+    }
+
+    function setTemperature(controller_id, type, value) {
+        if (!value || isNaN(parseFloat(value))) {
+            alert('Будь ласка, введіть коректне значення температури');
+            return;
+        }
+
+        fetch("{{ url_for('user_devices.user_set_temperature') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                controller_id: controller_id,
+                type: type,
+                value: value
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Получаем все карточки комнат
+                    const roomCards = document.querySelectorAll('.room-card');
+
+                    roomCards.forEach(card => {
+                        const heading = card.querySelector('h3');
+                        if (heading && heading.textContent.trim() === controller_id) {
+                            const tempElements = card.querySelectorAll('.ac-control .current-temp');
+                            if (tempElements.length > 0) {
+                                if (type === 'target') {
+                                    tempElements[0].textContent = `${value}°C`;
+                                } else {
+                                    tempElements[1].textContent = `${value}°C`;
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    alert('Помилка: ' + data.error);
+                }
+            });
+    }
+</script>
 
 {% endblock %}
